@@ -1,5 +1,5 @@
 // Proxy base: point this to your running proxy. Default assumes local dev server at port 3000.
-const PROXY_BASE = 'http://localhost:3000/n2yo';
+const PROXY_BASE = 'https://api-project-xcg2.onrender.com';
 
 let map, userMarker, issMarker;
 
@@ -40,7 +40,8 @@ async function geocodeAddress(address) {
 
 const getISSLocation = async (latitude, longitude) => {
     try {
-        const url = `${PROXY_BASE}/satellite/positions/25544/${latitude}/${longitude}/0/1`;
+        // Use the /n2yo/ prefix as required by the backend
+        const url = `${PROXY_BASE}/n2yo/satellite/positions/25544/${latitude}/${longitude}/0/1`;
         const response = await fetch(url);
         if (response.ok) {
             const data = await response.json();
