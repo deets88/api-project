@@ -62,4 +62,4 @@ app.get('/n2yo/*', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`N2YO proxy listening on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`N2YO proxy listening on port ${PORT}`));

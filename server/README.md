@@ -31,25 +31,26 @@ npm start
 
 Usage
 
-Call the proxy endpoint with the rest of the N2YO path you need. Examples:
+
+Call the proxy endpoint with the rest of the N2YO path you need. Examples (replace YOUR_RENDER_URL with your deployed backend URL, e.g., https://api-project-xcg2.onrender.com):
 
 - Get satellite positions (ISS = 25544) for observer lat/lon/alt and seconds:
 
 ```
-GET http://localhost:3000/n2yo/sat/positions/25544/22.28552/114.15769/0/60
+GET https://YOUR_RENDER_URL/n2yo/sat/positions/25544/22.28552/114.15769/0/60
 ```
 
 - Get satellite info:
 
 ```
-GET http://localhost:3000/n2yo/sat/info/25544
+GET https://YOUR_RENDER_URL/n2yo/sat/info/25544
 ```
 
 Client example (browser JS)
 
 ```js
 // positions example - adjust path/params as required by N2YO
-fetch('http://localhost:3000/n2yo/sat/positions/25544/22.28552/114.15769/0/60')
+fetch('https://YOUR_RENDER_URL/n2yo/sat/positions/25544/22.28552/114.15769/0/60')
   .then(r => r.json())
   .then(data => console.log(data))
   .catch(err => console.error(err));
