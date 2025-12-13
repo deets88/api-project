@@ -277,8 +277,8 @@ async function reverseGeocode(lat, lon) {
 const getISSLocation = async (latitude, longitude) => {
     try {
         // Use the /n2yo/ prefix as required by the backend
-        // Get positions for the next hour (3600 seconds)
-        const url = `${PROXY_BASE}/n2yo/satellite/positions/25544/${latitude}/${longitude}/0/3600`;
+        // Get positions for the next 93 mins (5580 seconds)
+        const url = `${PROXY_BASE}/n2yo/satellite/positions/25544/${latitude}/${longitude}/0/5580`;
         const response = await fetch(url);
         if (response.ok) {
             const data = await response.json();
