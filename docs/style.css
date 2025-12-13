@@ -1,0 +1,137 @@
+body {
+	background: #0a0a23;
+	color: #fff;
+	font-family: 'Segoe UI', 'Arial', sans-serif;
+	min-height: 100vh;
+	margin: 0;
+	position: relative;
+	overflow-x: hidden;
+}
+
+/* Space stars background */
+body::before {
+	content: '';
+	position: fixed;
+	top: 0; left: 0; right: 0; bottom: 0;
+	z-index: 0;
+	pointer-events: none;
+	background: repeating-radial-gradient(circle at 10% 20%, #fff 1px, transparent 2px, transparent 100px),
+				repeating-radial-gradient(circle at 80% 70%, #ffe066 1.5px, transparent 2px, transparent 120px),
+				repeating-radial-gradient(circle at 50% 50%, #aaf 1.2px, transparent 2px, transparent 80px);
+	opacity: 0.7;
+}
+
+.container {
+	max-width: 800px;
+	margin: 2em auto;
+	background: rgba(20, 20, 40, 0.95);
+	border-radius: 18px;
+	box-shadow: 0 0 32px 4px #222b;
+	padding: 2em 2em 1em 2em;
+	position: relative;
+	z-index: 1;
+}
+
+.space-title {
+	text-align: center;
+	font-size: 2.5em;
+	letter-spacing: 0.1em;
+	color: #ffe066;
+	margin-bottom: 0.5em;
+	text-shadow: 0 0 8px #fff, 0 0 24px #ffe066;
+}
+
+#location-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+	align-items: center;
+}
+
+.address-row, .latlon-row {
+	display: flex;
+	gap: 0.5em;
+	align-items: center;
+	justify-content: center;
+}
+
+.show-iss-btn {
+	background: #6c47ff;
+	color: #fff;
+	font-size: 1.2em;
+	font-weight: bold;
+	border: none;
+	border-radius: 8px;
+	padding: 0.6em 2em;
+	margin-top: 1em;
+	box-shadow: 0 0 8px #6c47ff88;
+	cursor: pointer;
+	transition: background 0.2s, box-shadow 0.2s;
+}
+.show-iss-btn:hover {
+	background: #ffe066;
+	color: #222;
+	box-shadow: 0 0 16px #ffe066cc;
+}
+
+.output-box {
+	background: rgba(30, 30, 60, 0.85);
+	border-radius: 10px;
+	margin: 1.5em 0 1em 0;
+	padding: 1em;
+	font-size: 1.1em;
+	color: #ffe066;
+	min-height: 2em;
+	box-shadow: 0 0 8px #ffe06644;
+}
+
+.map-box {
+	height: 700px;
+	width: 100%;
+	margin-top: 1em;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 0 16px #fff2;
+	border: 2px solid #ffe066;
+}
+
+label {
+	color: #ffe066;
+	font-weight: bold;
+	font-size: 1em;
+}
+
+input[type="text"], input[type="number"] {
+	background: #181830;
+	color: #fff;
+	border: 1px solid #ffe066;
+	border-radius: 6px;
+	padding: 0.4em 0.8em;
+	font-size: 1em;
+	outline: none;
+	transition: border 0.2s;
+}
+input[type="text"]:focus, input[type="number"]:focus {
+	border: 1.5px solid #6c47ff;
+}
+
+@media (max-width: 600px) {
+	.container {
+		padding: 1em 0.5em;
+	}
+	.map-box {
+		height: 250px;
+	}
+	.space-title {
+		font-size: 1.5em;
+	}
+}
+
+/* Custom icon styling for markers */
+.custom-icon {
+	background: transparent;
+	border: none;
+	font-size: 30px;
+	text-align: center;
+	line-height: 30px;
+}

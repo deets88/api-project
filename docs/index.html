@@ -5,20 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Project</title>
     <link rel="stylesheet" href="style.css">
+    <!-- MonkeyBrains font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Monofett&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>ISS Tracker</h1>
-    <form id="location-form" onsubmit="return false;">
-        <label>Latitude: <input type="number" step="any" id="latitude" value="22.237239"></label>
-        <label>Longitude: <input type="number" step="any" id="longitude" value="114.223436"></label>
-        <br>
-        <label>Or enter address: <input type="text" id="address" placeholder="Enter address"></label>
-        <button id="geocode-btn" type="button">Convert Address</button>
-        <br>
-        <button id="iss-btn" type="button">Show ISS Position</button>
-    </form>
-    <div id="output"></div>
-    <div id="map" style="height: 400px; width: 100%; margin-top: 1em;"></div>
+    <div class="container">
+        <h1 class="space-title">ISS Tracker</h1>
+        <form id="location-form" onsubmit="return false;">
+            <div class="address-row">
+                <label for="address">Your Location:</label>
+                <input type="text" id="address" placeholder="Enter your address or country" />
+                <button id="geocode-btn" type="button">Convert Address</button>
+            </div>
+            <div class="latlon-row">
+                <label for="latitude">Lat:</label>
+                <input type="number" step="any" id="latitude" value="22.237239">
+                <label for="longitude">Lon:</label>
+                <input type="number" step="any" id="longitude" value="114.223436">
+            </div>
+            <button id="iss-btn" type="button" class="show-iss-btn">SHOW ISS POSITION</button>
+        </form>
+        <div id="output" class="output-box"></div>
+        <div id="map" class="map-box"></div>
+    </div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="script.js"></script>
