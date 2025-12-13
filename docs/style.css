@@ -111,6 +111,11 @@ input[type="text"], input[type="number"] {
 	outline: none;
 	transition: border 0.2s;
 }
+
+input[type="text"] {
+	min-width: 300px;
+}
+
 input[type="text"]:focus, input[type="number"]:focus {
 	border: 1.5px solid #6c47ff;
 }
@@ -134,4 +139,11 @@ input[type="text"]:focus, input[type="number"]:focus {
 	font-size: 30px;
 	text-align: center;
 	line-height: 30px;
+}
+
+.arrow-icon {
+	background: transparent;
+	border: none;
+	text-align: center;
+	line-height: 20px;
 }

@@ -49,12 +49,14 @@ const getISSVisualPass = async (latitude, longitude) => {
 // Proxy base: point this to your running proxy. Default assumes local dev server at port 3000.
 const PROXY_BASE = 'https://api-project-xcg2.onrender.com';
 
-let map, userMarker, issMarker;
+let map, userMarker, issMarker, issVisibilityCircle, issPathLine, issArrows = [];
 
 function initMap(lat, lon) {
     if (!map) {
         map = L.map('map', {
-            minZoom:1
+            maxBounds: [[-90, -180], [90, 180]],
+            maxBoundsViscosity: 1.0,
+            minZoom: 2
         }).setView([lat, lon], 2);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             maxZoom: 18,
@@ -87,6 +89,21 @@ function showISSOnMap(issLat, issLon) {
         });
         issMarker = L.marker([issLat, issLon], {icon: issIcon, title: 'ISS'}).addTo(map);
     }
+    
+    // Remove previous visibility circle if it exists
+    if (issVisibilityCircle) {
+        map.removeLayer(issVisibilityCircle);
+    }
+    
+    // Add visibility circle (ISS is visible within ~2200km radius)
+    issVisibilityCircle = L.circle([issLat, issLon], {
+        radius: 2200000, // 2200 km in meters
+        color: '#ffe066',
+        fillColor: '#ffe066',
+        fillOpacity: 0.3,
+        weight: 2,
+        dashArray: '5, 10'
+    }).addTo(map);
 }
 
 async function geocodeAddress(address) {
@@ -99,19 +116,192 @@ async function geocodeAddress(address) {
     return null;
 }
 
+// Draw ISS future path with arrows
+function drawISSPath(positions) {
+    // Remove previous path and arrows if they exist
+    if (issPathLine) {
+        map.removeLayer(issPathLine);
+    }
+    issArrows.forEach(arrow => map.removeLayer(arrow));
+    issArrows = [];
+    
+    // Convert positions to [lat, lon] pairs
+    const latlngs = positions.map(pos => [pos.satlatitude, pos.satlongitude]);
+    
+    // Create polyline
+    issPathLine = L.polyline(latlngs, {
+        color: '#00ffff',
+        weight: 3,
+        opacity: 0.7
+    }).addTo(map);
+    
+    // Add arrows at intervals along the path
+    const arrowInterval = Math.max(Math.floor(positions.length / 5), 1); // 5 arrows along the path
+    for (let i = arrowInterval; i < positions.length; i += arrowInterval) {
+        const pos1 = positions[i - 1];
+        const pos2 = positions[i];
+        const lat1 = pos1.satlatitude;
+        const lon1 = pos1.satlongitude;
+        const lat2 = pos2.satlatitude;
+        const lon2 = pos2.satlongitude;
+        
+        // Calculate bearing for arrow rotation
+        const angle = Math.atan2(lon2 - lon1, lat2 - lat1) * (180 / Math.PI);
+        
+        // Create arrow marker
+        const arrowIcon = L.divIcon({
+            html: `<div style="transform: rotate(${angle}deg); font-size: 20px; line-height: 1; color: #00ffff;">▶</div>`,
+            className: 'arrow-icon',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+        
+        const arrowMarker = L.marker([lat2, lon2], { icon: arrowIcon }).addTo(map);
+        issArrows.push(arrowMarker);
+    }
+}
+
+// Draw ISS future path with arrows
+function drawISSPath(positions) {
+    // Remove previous path and arrows if they exist
+    if (issPathLine) {
+        if (Array.isArray(issPathLine)) {
+            issPathLine.forEach(line => map.removeLayer(line));
+        } else {
+            map.removeLayer(issPathLine);
+        }
+    }
+    issArrows.forEach(arrow => map.removeLayer(arrow));
+    issArrows = [];
+    
+    // Split path into segments when crossing map edge (longitude wrap)
+    const segments = [];
+    let currentSegment = [];
+    
+    for (let i = 0; i < positions.length; i++) {
+        const pos = positions[i];
+        currentSegment.push([pos.satlatitude, pos.satlongitude]);
+        
+        // Check if next position wraps around (large longitude jump)
+        if (i < positions.length - 1) {
+            const nextPos = positions[i + 1];
+            const lonDiff = Math.abs(nextPos.satlongitude - pos.satlongitude);
+            
+            // If longitude difference is large (> 180), we're wrapping
+            if (lonDiff > 180) {
+                segments.push(currentSegment);
+                currentSegment = [];
+            }
+        }
+    }
+    
+    // Add final segment
+    if (currentSegment.length > 0) {
+        segments.push(currentSegment);
+    }
+    
+    // Draw each segment as a separate polyline
+    issPathLine = [];
+    segments.forEach(segment => {
+        if (segment.length > 1) {
+            const line = L.polyline(segment, {
+                color: '#ff0000',
+                weight: 3,
+                opacity: 0.7
+            }).addTo(map);
+            issPathLine.push(line);
+        }
+    });
+    
+    // Add arrows at intervals along the path
+    const arrowInterval = Math.max(Math.floor(positions.length / 5), 1);
+    for (let i = arrowInterval; i < positions.length; i += arrowInterval) {
+        const pos1 = positions[i - 1];
+        const pos2 = positions[i];
+        const lat1 = pos1.satlatitude;
+        const lon1 = pos1.satlongitude;
+        const lat2 = pos2.satlatitude;
+        const lon2 = pos2.satlongitude;
+        
+        // Skip arrows at wrap points
+        const lonDiff = Math.abs(lon2 - lon1);
+        if (lonDiff > 180) continue;
+        
+        // Calculate bearing for arrow rotation
+        const angle = Math.atan2(lon2 - lon1, lat2 - lat1) * (180 / Math.PI);
+        
+        // Create arrow marker
+        const arrowIcon = L.divIcon({
+            html: `<div style="transform: rotate(${angle}deg); font-size: 20px; line-height: 1; color: #ff0000;">▶</div>`,
+            className: 'arrow-icon',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+        
+        const arrowMarker = L.marker([lat2, lon2], { icon: arrowIcon }).addTo(map);
+        issArrows.push(arrowMarker);
+    }
+}
+
+// Reverse geocode to get location name from coordinates
+async function reverseGeocode(lat, lon) {
+    try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=3`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data && data.address) {
+            // Try to get the most relevant location name
+            if (data.address.country) {
+                return data.address.country;
+            } else if (data.address.ocean) {
+                return `the ${data.address.ocean}`;
+            } else if (data.address.sea) {
+                return `the ${data.address.sea}`;
+            } else if (data.display_name) {
+                // Parse display_name for ocean names
+                const displayName = data.display_name.toLowerCase();
+                if (displayName.includes('pacific')) return 'the Pacific Ocean';
+                if (displayName.includes('atlantic')) return 'the Atlantic Ocean';
+                if (displayName.includes('indian')) return 'the Indian Ocean';
+                if (displayName.includes('arctic')) return 'the Arctic Ocean';
+                if (displayName.includes('southern')) return 'the Southern Ocean';
+                return data.display_name.split(',')[0];
+            }
+        }
+        return 'an unknown location';
+    } catch (error) {
+        return 'an unknown location';
+    }
+}
+
 const getISSLocation = async (latitude, longitude) => {
     try {
         // Use the /n2yo/ prefix as required by the backend
-        const url = `${PROXY_BASE}/n2yo/satellite/positions/25544/${latitude}/${longitude}/0/1`;
+        // Get positions for the next hour (3600 seconds)
+        const url = `${PROXY_BASE}/n2yo/satellite/positions/25544/${latitude}/${longitude}/0/3600`;
         const response = await fetch(url);
         if (response.ok) {
             const data = await response.json();
             // ISS position is in data.positions[0]
             const issLat = data.positions[0].satlatitude;
             const issLon = data.positions[0].satlongitude;
+            
+            // Get location name for ISS position
+            const locationName = await reverseGeocode(issLat, issLon);
+            
+            // Clear output and set ISS position info
             document.getElementById('output').innerHTML =
-                `ISS Position: Latitude ${issLat}, Longitude ${issLon}`;
+                `ISS Position: Latitude ${issLat}, Longitude ${issLon}<br>Right now, the ISS is passing over <b>${locationName}</b>.`;
             showISSOnMap(issLat, issLon);
+            
+            // Draw the ISS future path with arrows
+            if (data.positions && data.positions.length > 1) {
+                drawISSPath(data.positions);
+            }
+            
+            // Now fetch visual pass info (which will append to the output)
+            await getISSVisualPass(latitude, longitude);
+            
             // Fit bounds to show both user and ISS markers
             const bounds = L.latLngBounds(
                 [latitude, longitude],
@@ -147,7 +337,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('output').innerHTML = `Converted address to: Latitude ${loc.lat}, Longitude ${loc.lon}`;
                 // Also fetch ISS data
                 getISSLocation(lat, lon);
-                getISSVisualPass(lat, lon);
             } else {
                 document.getElementById('output').innerHTML = 'Address not found.';
             }
@@ -161,7 +350,6 @@ window.addEventListener('DOMContentLoaded', () => {
             userMarker.setLatLng([lat, lon]);
         }
         getISSLocation(lat, lon);
-        getISSVisualPass(lat, lon);
     };
 });
 
