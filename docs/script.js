@@ -32,7 +32,7 @@ const getISSVisualPass = async (latitude, longitude) => {
                     whenText = `in ${diffDays} days`;
                 }
                 
-                document.getElementById('output').innerHTML += `<br>The ISS will next be visible at your location <b>${whenText}</b> (${dateStr}) at <b>${timeStr}</b> local time for <b>${durationMin}</b> minutes.`;
+                document.getElementById('output').innerHTML += `<br>The ISS will next be visible at your location <b>${whenText}</b> (${dateStr}) at <b>${timeStr}</b> local time for <b>${durationMin}</b> minutes. Keep an eye out for it!`;
             } else {
                 document.getElementById('output').innerHTML += '<br>No visible ISS passes in the next 5 days.';
             }
@@ -54,13 +54,11 @@ let map, userMarker, issMarker;
 function initMap(lat, lon) {
     if (!map) {
         map = L.map('map', {
-            maxBounds: [[-90, -180], [90, 180]],
-            maxBoundsViscosity: 1.0,
-            minZoom: 2
+            minZoom:1
         }).setView([lat, lon], 2);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             maxZoom: 18,
-            noWrap: true,
+            noWrap: false,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
         }).addTo(map);
     }

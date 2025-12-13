@@ -22,7 +22,7 @@ body::before {
 }
 
 .container {
-	max-width: 800px;
+	max-width: 700px;
 	margin: 2em auto;
 	background: rgba(20, 20, 40, 0.95);
 	border-radius: 18px;
@@ -86,7 +86,7 @@ body::before {
 }
 
 .map-box {
-	height: 700px;
+	height: 400px;
 	width: 100%;
 	margin-top: 1em;
 	border-radius: 12px;
